@@ -1,0 +1,1 @@
+./lsfr size=9 start=0x1ff taps=0x11 print=prbs "$@"

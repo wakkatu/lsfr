@@ -1,0 +1,2 @@
+./lsfr size=13 start=0xab taps=0x1803 lsfr=external  print=state "$@" | cut -c-1 | tr -d '\n'
+echo
