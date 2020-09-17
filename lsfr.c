@@ -181,7 +181,7 @@ void print_full(int period, unsigned size, uintmax_t state, int output)
 
 void usage(FILE *f, char *name, int full)
 {
-    fprintf(f, "Usage: %s size=<size> [start=<start>] [taps=<taps>] [print=lsfr|prbs]\n",
+    fprintf(f, "Usage: %s size=<size> [start=<start>] [taps=<taps>] [lsfr=<LSFR_F>]\n",
         name);
 
     fprintf(f, "\n  help              this message");
@@ -189,7 +189,7 @@ void usage(FILE *f, char *name, int full)
     fprintf(f, "\n  start=<VALUE>     initial state, 0 for all-ones");
     fprintf(f, "\n  taps=<VALUE>      feedback polynomial, 0 to use pre-defined automatically");
     fprintf(f, "\n  lsfr=<LSFR_F>     type of LSFR");
-    fprintf(f, "\n  period=<VALUE>    0 for 2^size - 1");
+    fprintf(f, "\n  period=<VALUE>    0 to transit until state == start");
     fprintf(f, "\n  print=<PRINT_F>   print format");
     fprintf(f, "\n  errchk=0|1        error check, default is 1");
     fprintf(f, "\n  debug=0|1         display debug message, default is 0");
@@ -336,8 +336,13 @@ int main(int argc, char* argv[])
         print_f(period, size, state, output);
 
         if (errchk) {
-            if (state == 0 ||
-                (state == start && (period % max_period) != 0) ||
+            if (state == 0) {
+                print_f(-1);
+                LOG_ERROR("invalid peroid=%d state=0x%" PRIxMAX "\n", period, state);
+                return -1;
+            }
+
+            if ((state == start && (period % max_period) != 0) ||
                 (state != start && (period % max_period) == 0)) {
                 print_f(-1);
                 LOG_ERROR("invalid peroid=%d state=0x%" PRIxMAX "\n", period, state);
@@ -353,6 +358,7 @@ int main(int argc, char* argv[])
     } while (state != start || user_period != 0);
 
     print_f(-1);
+    LOG_DBG("period=%d\n", period);
 
     return 0;
 }
